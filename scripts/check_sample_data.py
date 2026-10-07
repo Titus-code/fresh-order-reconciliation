@@ -14,6 +14,11 @@ def read(name):
         return list(csv.DictReader(handle))
 
 
+def sha256_file(path):
+    """Hash canonical LF bytes so Windows and Linux checkouts agree."""
+    return hashlib.sha256(path.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+
+
 def scaled(text, places):
     whole, _, fraction = text.partition('.')
     assert len(fraction) <= places
@@ -27,7 +32,7 @@ def cents(text):
 def main():
     manifest = json.loads((ROOT / 'expected/manifest.json').read_text(encoding='utf-8'))
     for name, info in manifest['files'].items():
-        assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == info['sha256'], name
+        assert sha256_file(ROOT / name) == info['sha256'], name
         rows = read(name)
         assert len(rows) == info['rows'], name
         assert all(r['is_simulated'] == 'true' for r in rows), name

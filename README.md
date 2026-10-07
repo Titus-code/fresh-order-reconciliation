@@ -74,7 +74,7 @@
 
 ### 数据生成与独立检查（`scripts/`）
 
-`generate_sample_data.py` 用固定种子 `20260906` 生成全部样本，并计算每个文件的 SHA-256 写入 `manifest.json`，拒绝覆盖已有快照。`check_sample_data.py` 是**独立**的验证脚本：它不引用生成器的任何函数，而是从落盘 CSV 重新读取，把数量换算成"十分之一公斤"整数、金额换算成"分"整数，用纯整数运算重算全部订单、客户、流水和两个截止日期的结果。
+`generate_sample_data.py` 用固定种子 `20260906` 生成全部样本，并对规范化为 LF 换行的文件计算 SHA-256 写入 `manifest.json`，拒绝覆盖已有快照。`check_sample_data.py` 是**独立**的验证脚本：它不引用生成器的任何函数，而是从落盘 CSV 重新读取，把数量换算成"十分之一公斤"整数、金额换算成"分"整数，用纯整数运算重算全部订单、客户、流水和两个截止日期的结果。
 
 ```
 PASS: 143 orders; 966 lines; 100 allocations; 7 receipts; 2 cutoffs.
@@ -182,7 +182,7 @@ fresh-order-reconciliation/
     expected/                 # 两个截止日的预期核对值
       order_summary.csv       # 286 行（143 订单 × 2 个截止日）
       customer_summary.csv    # 12 行（6 客户 × 2 个截止日）
-      manifest.json           # 期间、种子、记录数、金额、文件 SHA-256
+      manifest.json           # 期间、种子、记录数、金额、规范化换行后的文件 SHA-256
   src/
     reconcile.py              # Python 对账流程
   excel/

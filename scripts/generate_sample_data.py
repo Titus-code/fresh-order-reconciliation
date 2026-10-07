@@ -22,6 +22,11 @@ def money(value):
     return D(value).quantize(CENT, rounding=ROUND_HALF_UP)
 
 
+def sha256_file(path):
+    """Hash canonical LF bytes so generated manifests are cross-platform."""
+    return hashlib.sha256(path.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'data')
@@ -207,7 +212,7 @@ def main():
                     return_line_count=sum(D(l['returned_qty']) > 0 for l in lines),
                     net_receivable=f'{sum(receivable.values()):.2f}',
                     received=f"{sum(D(r['amount']) for r in receipts):.2f}",
-                    files={name: dict(rows=len(rows), sha256=hashlib.sha256((out/name).read_bytes()).hexdigest()) for name,rows in tables.items()})
+                    files={name: dict(rows=len(rows), sha256=sha256_file(out/name)) for name,rows in tables.items()})
     (out/'expected/manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(manifest, ensure_ascii=False, indent=2))
 

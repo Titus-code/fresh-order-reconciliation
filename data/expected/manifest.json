@@ -44,31 +44,31 @@
   "files": {
     "raw/customers.csv": {
       "rows": 6,
-      "sha256": "4405685065ed91f25676b6e9089e6b18b4722ba637863d973e6662a7f5850fc0"
+      "sha256": "bceafa5578bf60dead0173f2454b28a68c2f824eeb7e368e0d70aca0443d7905"
     },
     "raw/products.csv": {
       "rows": 20,
-      "sha256": "085a069f7e286bc137e21efe6dfd33f57cfd1053360b36be83995cbbcb8332b7"
+      "sha256": "649f75032a50488b0d3580c906c8fd6d35570d663bf2b6438338d3ac6b6e3ce6"
     },
     "raw/order_lines.csv": {
       "rows": 966,
-      "sha256": "b5ba70cc1fe93079e77abe33487b8552d1d1343c1658c3e1f60506f4a070e359"
+      "sha256": "1205b6f14a1323e082f1e0b4dce11d514ebf375658ece459236795c269634d3a"
     },
     "raw/payments.csv": {
       "rows": 100,
-      "sha256": "0473a86ea5264498152002e7c18505f8607ac8279e9e9fda1301be11beb67285"
+      "sha256": "2fab8213367882cfd7ff9d37527d19a0554d0e8c3084c1c91a1f058f2e7025d9"
     },
     "raw/receipts.csv": {
       "rows": 7,
-      "sha256": "e65651a2bf0af623f7e4a6aad9fb5c7598a5fd4fb0193ed4b1e6c4efa19f15f0"
+      "sha256": "ff6767deef20b16d6780185c867cba7ba782aea8d21f08dc7be8ba0614de7376"
     },
     "expected/order_summary.csv": {
       "rows": 286,
-      "sha256": "941db3f22e8101af979ea7049903380c17d85ba031e0b5ee27520186a1c71a70"
+      "sha256": "7d73f9dcb796d66b9c3f9d5ab10eb75e4c5ba6acf45ded9c790c2e6796f24de4"
     },
     "expected/customer_summary.csv": {
       "rows": 12,
-      "sha256": "8ed62e87b11d282fc3459228b1285a56e014efb826670d518fc291ca4f33443c"
+      "sha256": "3a1f571dc28a99fba25a292e6a67c7048c8bafba385ab9bc90933698984234f6"
     }
   }
 }

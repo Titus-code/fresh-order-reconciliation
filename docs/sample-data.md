@@ -70,7 +70,7 @@
 | [payments.csv](../data/raw/payments.csv) | 100 | 一笔流水向一张订单分配的模拟已确认金额 |
 | [order_summary.csv](../data/expected/order_summary.csv) | 286 | 两个截止日期各 143 张订单的预期核对值 |
 | [customer_summary.csv](../data/expected/customer_summary.csv) | 12 | 两个截止日期各 6 个客户的预期核对值 |
-| [manifest.json](../data/expected/manifest.json) | — | 期间、固定种子、记录数、金额及文件 SHA-256 |
+| [manifest.json](../data/expected/manifest.json) | — | 期间、固定种子、记录数、金额及规范化换行后的文件 SHA-256 |
 
 主键：客户 `customer_id`，商品 `product_id`，明细 `order_id + line_no`，分配记录 `payment_id`，收款流水 `receipt_id`。预期表主键为 `as_of_date + order_id` 或 `as_of_date + customer_id`。
 
