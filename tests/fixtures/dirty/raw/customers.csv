@@ -1,0 +1,2 @@
+customer_id,customer_name,customer_type,service_area,meal_scale_assumption,delivery_schedule,settlement_cycle,payment_due_date,is_simulated
+C001,测试客户,餐饮,测试区,小型,每日,月结,2026-10-10,true

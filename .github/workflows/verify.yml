@@ -1,0 +1,28 @@
+name: Verify reconciliation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Check sample snapshot
+        run: python scripts/check_sample_data.py
+      - name: Reconcile at month end
+        run: python src/reconcile.py --cutoff 2026-09-30 --out /tmp/reconciliation-0930
+      - name: Reconcile at observed cutoff
+        run: python src/reconcile.py --cutoff 2026-10-06 --out /tmp/reconciliation-1006
+      - name: Verify SQL at both cutoffs
+        run: |
+          python sql/verify_sqlite.py --cutoff 2026-09-30
+          python sql/verify_sqlite.py --cutoff 2026-10-06

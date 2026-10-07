@@ -1,0 +1,6 @@
+order_id,line_no,customer_id,order_date,product_id,unit,ordered_qty,delivered_qty,returned_qty,unit_price,delivery_note,is_simulated
+BAD-1,1,C001,2026-09-01,P001,公斤,10.0,9.0,0.0,2.00,正常明细,true
+BAD-1,1,C001,2026-09-01,P001,公斤,10.0,9.0,0.0,2.00,重复主键,true
+GOOD-1,1,C001,2026-09-01,P001,公斤,1.0,1.0,0.0,2.00,正常订单,true
+BAD-2,1,C001,2026-09-02,P001,公斤,1.0,1.0,2.0,2.00,退货大于交付,true
+BAD-3,1,C001,2026-09-03,P999,公斤,1.0,1.0,0.0,2.00,未知商品,true

@@ -1,0 +1,2 @@
+product_id,product_name,specification,unit,category,simulated_price_min,simulated_price_max,is_simulated
+P001,测试蔬菜,散装,公斤,蔬菜,1.00,10.00,true

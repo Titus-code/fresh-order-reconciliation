@@ -1,0 +1,74 @@
+{
+  "is_simulated": true,
+  "scenario": "江西普通乡镇2026年9月月结配送",
+  "seed": 20260906,
+  "order_period_start": "2026-09-01",
+  "order_period_end": "2026-09-30",
+  "receipt_observed_through": "2026-10-06",
+  "payment_due_date": "2026-10-10",
+  "opening_balance_assumption": "0.00",
+  "order_count": 143,
+  "customer_count": 6,
+  "product_count": 20,
+  "receipt_count": 7,
+  "order_line_count": 966,
+  "payment_allocation_count": 100,
+  "school_delivery_days": [
+    1,
+    2,
+    3,
+    4,
+    7,
+    8,
+    9,
+    10,
+    11,
+    14,
+    15,
+    16,
+    17,
+    18,
+    20,
+    21,
+    22,
+    23,
+    24,
+    28,
+    29,
+    30
+  ],
+  "short_delivery_line_count": 50,
+  "return_line_count": 27,
+  "net_receivable": "44914.30",
+  "received": "26254.15",
+  "files": {
+    "raw/customers.csv": {
+      "rows": 6,
+      "sha256": "4405685065ed91f25676b6e9089e6b18b4722ba637863d973e6662a7f5850fc0"
+    },
+    "raw/products.csv": {
+      "rows": 20,
+      "sha256": "085a069f7e286bc137e21efe6dfd33f57cfd1053360b36be83995cbbcb8332b7"
+    },
+    "raw/order_lines.csv": {
+      "rows": 966,
+      "sha256": "b5ba70cc1fe93079e77abe33487b8552d1d1343c1658c3e1f60506f4a070e359"
+    },
+    "raw/payments.csv": {
+      "rows": 100,
+      "sha256": "0473a86ea5264498152002e7c18505f8607ac8279e9e9fda1301be11beb67285"
+    },
+    "raw/receipts.csv": {
+      "rows": 7,
+      "sha256": "e65651a2bf0af623f7e4a6aad9fb5c7598a5fd4fb0193ed4b1e6c4efa19f15f0"
+    },
+    "expected/order_summary.csv": {
+      "rows": 286,
+      "sha256": "941db3f22e8101af979ea7049903380c17d85ba031e0b5ee27520186a1c71a70"
+    },
+    "expected/customer_summary.csv": {
+      "rows": 12,
+      "sha256": "8ed62e87b11d282fc3459228b1285a56e014efb826670d518fc291ca4f33443c"
+    }
+  }
+}

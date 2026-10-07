@@ -1,0 +1,2 @@
+payment_id,order_id,payment_date,amount,receipt_id,allocation_rule,is_simulated
+PAY-1,GOOD-1,2026-10-02,2.00,R001,测试分配,true

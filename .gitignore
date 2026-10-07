@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.inspect.ndjson
+~$*.xlsx
+.DS_Store

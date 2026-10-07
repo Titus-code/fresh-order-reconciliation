@@ -1,0 +1,2 @@
+receipt_id,customer_id,payment_date,amount,payment_method,settlement_month,memo,is_simulated
+R001,C001,2026-10-02,2.00,转账,2026-09,测试回款,true
