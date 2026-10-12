@@ -1,17 +1,16 @@
--- 对账查询。整段可直接在 MySQL 8.0 执行；
--- 也支持 SQLite（见 sql/verify_sqlite.py，脚本会自动改写 CREATE OR REPLACE VIEW 与 @cutoff）。
--- 只需把 @cutoff 改成需要的对账日，例如 2026-09-30。
+-- 对账查询，由 sql/verify_sqlite.py 在 SQLite 中执行并核对。
+-- 验证脚本改写 CREATE OR REPLACE VIEW 与 @cutoff；可通过 --cutoff 设置对账日。
+-- MySQL 建表参考见 schema.sql；迁移前需复核查询语法、类型转换与取整规则。
 --
--- 金额一律走"分"（整数）运算，这是刻意的设计，不是绕弯：
+-- 金额以"分"（整数）运算，数量与单价先按固定精度换算：
 --   1. 数量一位小数，乘 10 存成整数；单价两位小数，乘 100 存成整数。
 --   2. 明细净额 = (交付量×10 × 单价×100 + 5) / 10，整数除法天然等于四舍五入到分，
 --      与 Python Decimal(ROUND_HALF_UP) 和 Excel ROUND 完全一致。
 --   3. 如果直接用 DECIMAL 相乘，SQLite 的 NUMERIC 亲和性会先转成浮点，
 --      汇总后出现 1212.6799999999998、余额 -2.27e-13 这类结果；
---      MySQL 的 DECIMAL 本身精确，但两套引擎就对不上了。
---      统一用整数分，两个引擎结果完全一致。
+--      使用整数分可按相同取整规则与 Python、Excel 核对。
 --   4. CAST(x AS INTEGER) 是"截断"，但输入本身已是整数值，截断不会损失精度；
---      这一句同时兼容 MySQL 和 SQLite。
+--      当前自动化使用 SQLite 验证该取整方式。
 --
 -- 注意：数量列字段名沿用 _qty，内部按"十分之一公斤"整数处理。
 
@@ -25,8 +24,8 @@
 --
 -- 为什么不写 CAST(x * 10 AS INTEGER)：那是浮点乘法。
 -- SQLite 里 CAST('4.60' AS REAL) * 100 = 459.99999999999994，截断成 459，
--- 每行少一分，整月汇总差 8 元；MySQL 用 DECIMAL 列时不会踩到，
--- 但两套引擎结果就对不上了。走字符串去掉小数点，全程只有整数运算。
+-- 这类截断会导致金额分值误差。保留固定小数位文本后去掉小数点，
+-- 可直接得到整数分值，避免浮点乘法。
 
 SET @cutoff = '2026-10-06';
 
@@ -85,7 +84,7 @@ LEFT JOIN v_order_received r ON r.order_id = n.order_id
 ORDER BY n.order_id;
 
 -- Q5 客户对账汇总。这是最终交付结果，必须与 Excel 透视表、Python 输出完全一致。
--- 输出金额转成两位小数字符串，避免 0.0000000001 这类尾数影响肉眼核对。
+-- 金额分值在输出时除以 100；验证脚本按两位小数核对。
 SELECT
   n.customer_id,
   c.customer_name,
@@ -110,7 +109,7 @@ FROM payments GROUP BY payment_id HAVING COUNT(*) > 1;
 -- Q7 异常：数量、单位、金额不合规。本样本应返回 0 行。
 -- 比较数量必须先把字符串去掉小数点变成整数，不能直接拿文本比大小：
 -- 文本比较是按字符逐位比的，'9.6' > '10.1' 成立（因为 '9' > '1'），
--- 会报出一堆假的"交付大于下单"。这是本次构建真实踩到的坑。
+-- 直接进行文本比较会误报"交付大于下单"。
 SELECT line.order_id, line.line_no, line.customer_id, line.product_id,
        CASE
          WHEN CAST(REPLACE(line.returned_qty,  '.', '') AS INTEGER)
