@@ -59,7 +59,7 @@
 
 ## 文件及字段
 
-所有 CSV 均采用 UTF-8 BOM 编码、逗号分隔、首行英文表头，无合计行或合并单元格，可从 Excel“数据→从文本/CSV”导入。编号按文本导入；日期格式为 `YYYY-MM-DD`，金额为人民币元，金额精度 0.01 元，称重精度 0.1 公斤。所有文件均含 `is_simulated=true`；客户名称和业务编号也带模拟标识。
+所有 CSV 均采用 UTF-8 BOM 编码、逗号分隔、首行英文表头，无合计行或合并单元格，可从 Excel“数据→从文本/CSV”导入。编号按文本导入；日期格式为 `YYYY-MM-DD`，金额为人民币元，金额精度 0.01 元，称重精度 0.1 公斤。所有原始 CSV 均含 `is_simulated=true`；客户名称和业务编号也带模拟标识。
 
 | 文件 | 行数（不含表头） | 一行含义 |
 | --- | ---: | --- |
@@ -74,11 +74,11 @@
 
 主键：客户 `customer_id`，商品 `product_id`，明细 `order_id + line_no`，分配记录 `payment_id`，收款流水 `receipt_id`。预期表主键为 `as_of_date + order_id` 或 `as_of_date + customer_id`。
 
-- `customers.csv`：README 必需字段以外增加 `service_area`（仅镇区/周边村庄）、`meal_scale_assumption`、`delivery_schedule`、`settlement_cycle`、`payment_due_date`。不包含地址、电话或账户。
-- `products.csv`：增加 `category`、`simulated_price_min`、`simulated_price_max`；区间单位与本行 `unit` 一致。
-- `order_lines.csv`：保留 README 的全部字段，增加 `delivery_note` 说明少送或签收退货。`order_date` 同时作为本样本的配送日；退货均在当天签收时确认，不涉及跨期退货。
+- `customers.csv`：记录客户编号、名称、类型，以及 `service_area`（仅镇区/周边村庄）、`meal_scale_assumption`、`delivery_schedule`、`settlement_cycle`、`payment_due_date`。不包含地址、电话或账户。
+- `products.csv`：记录商品编号、名称、固定规格、计价单位及 `category`、`simulated_price_min`、`simulated_price_max`；价格区间单位与本行 `unit` 一致。
+- `order_lines.csv`：记录订单及行号、客户、日期、商品、单位、下单量、交付量、退货量和成交单价，`delivery_note` 说明少送或签收退货。`order_date` 同时作为本样本的配送日；退货均在当天签收时确认，不涉及跨期退货。
 - `receipts.csv`：`receipt_id`、`customer_id`、`payment_date`、`amount`、`payment_method`、`settlement_month`、`memo`。流水关联客户和月份，金额为实际模拟收款总额。
-- `payments.csv`：保留 `payment_id`、`order_id`、`payment_date`、`amount`，增加 `receipt_id` 和 `allocation_rule`。这是为兼容第一版输入接口预先构造的分配账，不是银行原始流水。默认按同客户订单日期及编号顺序分配，仅对本模拟数据视为已确认；真实业务不能未经确认照搬。
+- `payments.csv`：记录 `payment_id`、`order_id`、`payment_date`、`amount`、`receipt_id` 和 `allocation_rule`。这是预先构造的订单分配账。默认按同客户订单日期及编号顺序分配，仅对本模拟数据视为已确认；接入实际业务时需要另行确认分配规则。
 
 同一 `receipt_id` 的分配金额合计严格等于其流水金额。一个流水可以覆盖多张订单，一张订单也可以分次收到分配款。**统计已收时，流水总额与分配总额是两个核对视角，禁止相加；连接订单明细和分配明细前须分别汇总到订单级。**
 
@@ -86,7 +86,7 @@
 
 样本有 50 条少送明细、27 条签收退货明细，两类可能重叠。包含全额付款、部分付款、分次付款、暂未付款，以及月末后收到本期货款。
 
-本次先提供正常业务原始账，不人为混入重复主键、未知商品或非法数量。少送和合理退货属于业务情况，不能当成脏数据删除；README 中其余错误处理用例尚待单独构造。
+正式快照保留正常业务原始账，不混入重复主键、未知商品或非法数量。少送和合理退货按业务规则计费。重复主键、非法数量和未知商品等异常样本位于 `tests/fixtures/dirty/`，由 Python 回归测试验证整单暂缓规则。
 
 | 核对截止日 | 9 月净应收（元） | 本期订单已收（元） | 本期订单未结清（元） |
 | --- | ---: | ---: | ---: |
@@ -103,7 +103,9 @@
 PASS: 143 orders; 966 lines; 100 allocations; 7 receipts; 2 cutoffs.
 ```
 
-`expected/` 是样本核对值。Python 对账流程（`src/reconcile.py`）与 SQL 查询（`sql/queries.sql`，经 `sql/verify_sqlite.py` 在 SQLite 中复核）已分别跑通，两个截止日的客户级金额与 `expected/customer_summary.csv` 精确到分完全一致，异常检查返回 0 条。Excel 原型尚未实现，待与上述两条路径对拍后形成第三条独立验证。
+`expected/` 保存两个截止日的样本核对值。Python 对账程序与 SQLite SQL 核对脚本检查客户级金额、流水与分配一致性及总账结果。正式快照在两个截止日均无数据质量问题；截至 9 月 30 日有 84 条回款分配因晚于截止日归为口径排除，截至 10 月 6 日为 0 条。
+
+Excel 工作簿已提交至 [对账原型.xlsx](../excel/对账原型.xlsx)，包含逐行公式、订单与客户汇总和原生透视表。使用步骤与核对范围见 [Excel 工作簿说明](../excel/Excel原型分步指南.md)，金额精度与实现规则见 [计算说明](calculation-notes.md)。
 
 ## 使用及复现
 
@@ -114,4 +116,4 @@ python scripts/check_sample_data.py
 python scripts/generate_sample_data.py --output-dir data-rebuilt
 ```
 
-固定种子 `20260906`。生成器拒绝覆盖已存在的数据文件，修改样本假设时应输出到新目录；原始快照保留不改。当前生成及核对使用 Python 标准库，CSV 可直接用于后续 Excel、Python 或 SQL 开发。
+固定种子 `20260906`。生成器拒绝覆盖已存在的数据文件，修改样本假设时应输出到新目录；原始快照保留不改。生成及核对使用 Python 标准库，CSV 为 Python、Excel 和 SQL 提供统一输入。

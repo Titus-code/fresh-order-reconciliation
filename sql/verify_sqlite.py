@@ -1,11 +1,11 @@
 """在 SQLite 中跑一遍 sql/queries.sql，验证 SQL 口径与 Python、Excel 结果一致。
 
-MySQL 与 SQLite 的差异只有两处，这个脚本自动改写，不改动 sql/queries.sql 本身：
+为在 SQLite 中执行查询，这个脚本改写以下两处，不改动 sql/queries.sql 本身：
   1. CREATE OR REPLACE VIEW -> DROP VIEW IF EXISTS + CREATE VIEW
   2. SET @cutoff = '...'    -> 直接把 @cutoff 替换成字面量
 
-queries.sql 已避开 CONCAT、日期函数等引擎差异；金额走整数分运算，
-CAST(... AS INTEGER) 与 COALESCE 两边都支持，所以两个引擎结果一致。
+金额使用整数分运算，并与样本预期值核对。
+该脚本不执行 MySQL 验证；迁移时需另行检查目标引擎的语法与取整规则。
 
 前置：先把 data/raw/ 的 CSV 导入 SQLite（见本文件 load()）。
 
@@ -35,7 +35,7 @@ CREATE TABLE customers (customer_id TEXT PRIMARY KEY, customer_name TEXT, custom
 --      客户余额变成 -2.27e-13 而不是 0，与 Excel、Python 对不上。
 --   2. 更隐蔽的一个：'2.30' 变成浮点 2.3，再去 REPLACE('.','') 得到 '23'，
 --      而明细里的 unit_price 仍是 '2.30' -> 230，于是每一行都误报"单价超出区间"。
---      这个坑是 Q7 先报出 966 行假异常才暴露的。
+--      价格区间和明细单价需保留相同小数位数，才能正确换算并比较。
 -- 声明成 TEXT 后原样保存，由 queries.sql 里的显式 CAST 完成乘 10 / 乘 100。
 -- MySQL 侧不需要这层处理：schema.sql 用 DECIMAL(10,1)/(10,2)，本身就精确。
 CREATE TABLE products (product_id TEXT PRIMARY KEY, product_name TEXT, specification TEXT,
